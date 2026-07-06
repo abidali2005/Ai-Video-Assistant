@@ -8,11 +8,10 @@ from sqlalchemy.orm import sessionmaker
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-if not DATABASE_URL:
-    raise RuntimeError(
-        "DATABASE_URL is not set. Add PostgreSQL on Railway and link DATABASE_URL to this service."
-    )
+
+from app.env_utils import env, require_env
+
+DATABASE_URL = require_env("DATABASE_URL")
 
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)

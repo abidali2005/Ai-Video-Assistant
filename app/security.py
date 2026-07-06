@@ -4,6 +4,8 @@ from dotenv import load_dotenv
 from passlib.context import CryptContext
 from jose import jwt
 from datetime import datetime , timedelta
+from app.env_utils import env, require_env
+
 load_dotenv()
 print(os.getcwd())
 pwd_context = CryptContext(
@@ -11,14 +13,10 @@ pwd_context = CryptContext(
     deprecated="auto"
 )
 
-SECRET_KEY = os.getenv("SECRET_KEY")
-if not SECRET_KEY:
-    raise RuntimeError("SECRET_KEY is not set. Add it in Railway Variables.")
+SECRET_KEY = require_env("SECRET_KEY")
 
-ALGORITHM = os.getenv("ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(
-    os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "60")
-)
+ALGORITHM = env("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(env("ACCESS_TOKEN_EXPIRE_MINUTES", "60"))
 
 def hash_password(password: str):
     return pwd_context.hash(password)
