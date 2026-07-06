@@ -1,6 +1,5 @@
 from fastapi import APIRouter
 from app.models.request import ChatRequest
-from core.rag_engine import load_rag, ask_question
 from app.services.chat_service import save_message
 from app.dependencies import get_current_user
 from app.modals import User
@@ -15,6 +14,7 @@ router = APIRouter(
 
 @router.post("/")
 def chat(request: ChatRequest , current_user: User = Depends(get_current_user) ,  db: Session = Depends(get_db) ):
+    from core.rag_engine import load_rag, ask_question
 
     rag_chain = load_rag(request.video_id)
     

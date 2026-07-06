@@ -10,7 +10,6 @@ from app.services.ownership_service import verify_owner
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.services.video_service import get_user_videos
-from core.vector_store import delete_vector_store  # adjust import path
 
 router = APIRouter(
     prefix="/videos",
@@ -62,9 +61,11 @@ def delete_video(
 ):
     verify_owner(db, video_id, current_user)
 
+    from core.vector_store import delete_vector_store
+
     delete_metadata(video_id)
 
-    delete_vector_store(video_id)  # release Chroma's SQLite handle first
+    delete_vector_store(video_id)
 
     vector_dir = Path("vector_db") / video_id
     if vector_dir.exists():

@@ -1,12 +1,12 @@
 import os
 
 from fastapi_mail import FastMail, MessageSchema, MessageType
-from app.mail import conf
 
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
 
 async def send_reset_email(email: str, token: str):
+    from app.mail import conf
 
     link = f"{FRONTEND_URL}/reset-password?token={token}"
 

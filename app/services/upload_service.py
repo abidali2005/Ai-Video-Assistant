@@ -1,7 +1,6 @@
 import threading
 import traceback
 
-from pipeline import run_pipeline
 from app.services.status_service import save_status
 
 
@@ -12,6 +11,8 @@ def process_video(
     owner_email
 ):
     try:
+        from pipeline import run_pipeline
+
         print(f"Starting pipeline for {video_id}")
 
         save_status(video_id, "processing")
