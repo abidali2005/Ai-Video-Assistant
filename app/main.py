@@ -13,8 +13,7 @@ from app.api.health import router as health_router
 from app.api.status import router as status_router
 from app.api.upload_file import router as upload_file_router
 from app.api.history import router as history_router
-from app.database import Base
-from app.database import engine
+from app.database import init_db
 from app.api.auth import router as auth_router
 
 load_dotenv()
@@ -28,17 +27,16 @@ ALLOWED_ORIGINS = list(dict.fromkeys([
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    last_error = None
     for attempt in range(10):
         try:
-            Base.metadata.create_all(bind=engine)
+            init_db()
+            print("Database tables ready")
             break
         except Exception as exc:
-            last_error = exc
             print(f"Database init attempt {attempt + 1} failed: {exc}")
+            if attempt == 9:
+                print("WARNING: starting without database — check DATABASE_URL")
             await asyncio.sleep(3)
-    else:
-        raise RuntimeError(f"Could not initialize database: {last_error}") from last_error
 
     yield
 

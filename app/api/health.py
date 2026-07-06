@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from sqlalchemy import text
 
 router = APIRouter(tags=["Health"])
 
@@ -12,6 +13,16 @@ def root():
 
 @router.get("/health")
 def health():
+    db_status = "unknown"
+    try:
+        from app.database import get_engine
+        with get_engine().connect() as conn:
+            conn.execute(text("SELECT 1"))
+        db_status = "connected"
+    except Exception as exc:
+        db_status = f"error: {exc}"
+
     return {
-        "status": "healthy"
+        "status": "healthy",
+        "database": db_status,
     }
