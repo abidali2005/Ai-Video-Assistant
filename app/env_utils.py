@@ -2,7 +2,7 @@ import os
 import re
 from urllib.parse import quote_plus
 
-_REFERENCE_PATTERN = re.compile(r"^\$\{\{.+}\}$")
+_REFERENCE_PATTERN = re.compile(r"^\$\{\{.+}}$")
 
 
 def env(name: str, default: str | None = None) -> str | None:
@@ -21,7 +21,12 @@ def require_env(name: str) -> str:
         raise RuntimeError(
             f"{name} is not set. Add it in Railway Variables on the web service."
         )
-    if _REFERENCE_PATTERN.match(value) or "${{" in value:
+    # Allow secret() and service references to pass through - they're resolved by Railway
+    if _REFERENCE_PATTERN.match(value):
+        # Check if it's a secret() or service reference - these are OK
+        if "secret(" in value or "." in value:
+            return value
+        # Otherwise it's an unresolved reference
         raise RuntimeError(
             f"{name} is unresolved ({value}). "
             "Use Variables -> New Variable -> Add Reference instead of typing ${{...}}."
@@ -61,3 +66,4 @@ def resolve_database_url() -> str:
         "service -> Variables -> New Variable -> Add Reference -> PostgreSQL -> "
         f"DATABASE_URL. DB-related env keys in container: {db_keys or 'none'}"
     )
+
