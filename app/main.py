@@ -18,11 +18,21 @@ from app.api.auth import router as auth_router
 
 load_dotenv()
 
-FRONTEND_URL = env("FRONTEND_URL", "http://localhost:5173")
-ALLOWED_ORIGINS = list(dict.fromkeys([
+FRONTEND_URL = (env("FRONTEND_URL", "http://localhost:5173") or "").rstrip("/")
+extra_origins = [
+    origin.rstrip("/")
+    for origin in (env("CORS_ORIGINS", "") or "").split(",")
+    if origin.strip()
+]
+ALLOWED_ORIGINS = list(dict.fromkeys(filter(None, [
     "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://ai-video-assistant-theta.vercel.app",
     FRONTEND_URL,
-]))
+    *extra_origins,
+])))
+
+print("CORS allowed origins:", ALLOWED_ORIGINS)
 
 
 @asynccontextmanager
@@ -50,8 +60,9 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_origin_regex=r"https://.*\.vercel\.app$",
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allow_headers=["*"],
 )
 
