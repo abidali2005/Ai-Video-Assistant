@@ -55,6 +55,7 @@ app = FastAPI(
     title="AI Video Assistant API",
     version="1.0.0",
     lifespan=lifespan,
+    redirect_slashes=False,
 )
 
 app.add_middleware(ForceCORSMiddleware, allowed_origins=ALLOWED_ORIGINS)

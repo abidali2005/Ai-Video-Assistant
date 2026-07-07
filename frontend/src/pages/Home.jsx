@@ -123,6 +123,11 @@ const Home = () => {
       setFile(null);
     } catch (err) {
       console.error(err);
+      const message =
+        err?.response?.data?.detail ||
+        err?.message ||
+        "Upload failed. Try a smaller file or check your connection.";
+      alert(message);
     } finally {
       setLoading(false);
     }

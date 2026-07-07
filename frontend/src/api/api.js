@@ -18,6 +18,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  timeout: 300000,
 });
 
 
@@ -25,7 +26,7 @@ const api = axios.create({
 // Upload Video
 // ------------------------
 export const uploadVideo = async (source) => {
-  const response = await api.post("/upload", {
+  const response = await api.post("/upload/", {
     source,
   });
 
@@ -83,11 +84,7 @@ export const uploadLocalFile = async (file) => {
   const formData = new FormData();
   formData.append("file", file);
 
-  const res = await api.post("/upload-file/", formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
+  const res = await api.post("/upload-file/", formData);
 
   return res.data;
 };
@@ -109,6 +106,10 @@ const PUBLIC_AUTH_PATHS = [
 ];
 
 api.interceptors.request.use((config) => {
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
+
   const isPublicAuth = PUBLIC_AUTH_PATHS.some((path) => config.url?.includes(path));
 
   if (!isPublicAuth) {
