@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas import RegisterRequest
 from app.schemas import LoginRequest , TokenResponse
+from app.schemas import UserResponse
 
 from app.services.auth_service import create_user
 from app.services.auth_service import get_user_by_email  , get_user_by_username
@@ -63,7 +64,7 @@ def register(
 
     return {
         "message": "User registered successfully.",
-        "user": user
+        "user": UserResponse.model_validate(user),
     }
 
 

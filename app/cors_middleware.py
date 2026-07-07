@@ -1,6 +1,8 @@
+import traceback
+
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from starlette.responses import Response
+from starlette.responses import JSONResponse, Response
 
 
 def _is_allowed_origin(origin: str, allowed_origins: list[str]) -> bool:
@@ -30,10 +32,17 @@ class ForceCORSMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
         origin = request.headers.get("origin", "")
 
-        if request.method == "OPTIONS":
-            response = Response(status_code=200)
-        else:
-            response = await call_next(request)
+        try:
+            if request.method == "OPTIONS":
+                response = Response(status_code=200)
+            else:
+                response = await call_next(request)
+        except Exception:
+            traceback.print_exc()
+            response = JSONResponse(
+                status_code=500,
+                content={"detail": "Internal server error"},
+            )
 
         if _is_allowed_origin(origin, self.allowed_origins):
             requested_headers = request.headers.get(
