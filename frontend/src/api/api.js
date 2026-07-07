@@ -47,7 +47,7 @@ export const getStatus = async (videoId) => {
 // Get All Videos
 // ------------------------
 export const getVideos = async () => {
-  const response = await api.get("/videos");
+  const response = await api.get("/videos/");
   return response.data;
 };
 
@@ -65,7 +65,7 @@ export const getVideo = async (videoId) => {
 // Chat
 // ------------------------
 export const chatWithVideo = async (videoId, question) => {
-  const response = await api.post("/chat", {
+  const response = await api.post("/chat/", {
     video_id: videoId,
     question,
   });

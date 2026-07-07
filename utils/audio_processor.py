@@ -1,13 +1,14 @@
-import yt_dlp
 import os
+
+import yt_dlp
 from pydub import AudioSegment
 
-from rich import print
 Download_dir = "Downloads"
-os.makedirs(Download_dir,exist_ok=True)
+os.makedirs(Download_dir, exist_ok=True)
 
-def download_youtube_audio(url :str) ->str:
-    output_path = os.path.join(Download_dir, "%(title)s.%(ext)s")
+
+def download_youtube_audio(url: str) -> str:
+    output_path = os.path.join(Download_dir, "%(id)s.%(ext)s")
     ydl_opts = {
         "format": "bestaudio/best",
         "outtmpl": output_path,
@@ -19,11 +20,23 @@ def download_youtube_audio(url :str) ->str:
             }
         ],
         "quiet": True,
+        "no_warnings": True,
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["android", "web"],
+            }
+        },
     }
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=True)
-        filename = ydl.prepare_filename(info).replace(".webm", ".wav").replace(".m4a", ".wav")
-    return filename 
+
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=True)
+            filename = ydl.prepare_filename(info).replace(".webm", ".wav").replace(".m4a", ".wav")
+        return filename
+    except Exception as exc:
+        raise RuntimeError(
+            "YouTube download failed on the server. Try uploading a local video/audio file instead."
+        ) from exc
 
 
 def convert_to_wav(input_path: str) -> str:

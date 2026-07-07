@@ -48,6 +48,9 @@ async def lifespan(app: FastAPI):
                 print("WARNING: starting without database — check DATABASE_URL")
             await asyncio.sleep(3)
 
+    for folder in ("data/metadata", "data/status", "data/chats", "uploads", "Downloads", "vector_db"):
+        os.makedirs(folder, exist_ok=True)
+
     yield
 
 

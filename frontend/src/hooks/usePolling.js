@@ -19,7 +19,7 @@ const usePolling = (videoId, setStatus, onCompleted) => {
 
         if (response.status === "failed") {
           clearInterval(interval);
-          alert("Video processing failed.");
+          alert(response.error || "Video processing failed.");
         }
       } catch (err) {
         console.error(err);
