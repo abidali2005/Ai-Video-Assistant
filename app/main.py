@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from app.cors_middleware import ForceCORSMiddleware
 from app.env_utils import env
 from app.api.videos import router as videos_router
 from app.api.upload import router as upload_router
@@ -57,14 +57,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=ALLOWED_ORIGINS,
-    allow_origin_regex=r"https://.*\.vercel\.app$",
-    allow_credentials=False,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allow_headers=["*"],
-)
+app.add_middleware(ForceCORSMiddleware, allowed_origins=ALLOWED_ORIGINS)
 
 app.include_router(upload_router)
 app.include_router(chat_router)

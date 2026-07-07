@@ -1,6 +1,18 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+function normalizeApiUrl(url) {
+  if (!url) return "http://127.0.0.1:8000";
+
+  const trimmed = url.trim().replace(/\/$/, "");
+
+  if (trimmed.startsWith("http://") && !trimmed.includes("localhost") && !trimmed.includes("127.0.0.1")) {
+    return trimmed.replace("http://", "https://");
+  }
+
+  return trimmed;
+}
+
+const API_URL = normalizeApiUrl(import.meta.env.VITE_API_URL);
 const api = axios.create({
   baseURL: API_URL,
   headers: {
@@ -89,15 +101,25 @@ export const clearChatHistory = async (videoId) => {
   return res.data;
 };
 
-api.interceptors.request.use((config) => {
+const PUBLIC_AUTH_PATHS = [
+  "/auth/register",
+  "/auth/login",
+  "/auth/forgot-password",
+  "/auth/reset-password",
+];
 
+api.interceptors.request.use((config) => {
+  const isPublicAuth = PUBLIC_AUTH_PATHS.some((path) => config.url?.includes(path));
+
+  if (!isPublicAuth) {
     const token = localStorage.getItem("token");
 
     if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
+  }
 
-    return config;
+  return config;
 });
 
 export default api;
